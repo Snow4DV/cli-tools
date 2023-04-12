@@ -1,0 +1,61 @@
+#!/bin/bash
+
+SERVERS_PATH="$HOME/.config/sssclient/servers"
+
+# Get the list of servers
+servers=()
+
+# read the file line by line using a while loop and a file descriptor
+while IFS= read -r server <&3; do
+    # add each line to the array variable
+    servers+=("$server")
+done 3< "$SERVERS_PATH"
+
+# Check if there's anything coming through the pipe
+if ! read -t 0 ; then
+    echo "Select a server by number or enter a new SS:// URI:"
+    select server in "${servers[@]}" "New SS:// URI"; do
+        if [ "$server" == "New SS:// URI" ]; then
+            read -p "Enter SS:// URI: " ss_uri
+            break
+        elif [ -n "$server" ]; then
+            ss_uri=$server
+            break
+        else
+            echo "Invalid option. Try again."
+        fi
+    done
+else
+    read ss_uri
+fi
+# Extract encryption algorithm and password from SS URI
+ss_uri=$(echo "$ss_uri" | cut -d' ' -f1) # cut description
+ss_decoded=$(echo $ss_uri | sed 's/ss:\/\///' | cut -d'@' -f1 | tr -d '\n' | base64 -d)
+ss_parts=(${ss_decoded//:/ })
+encryption=${ss_parts[0]}
+password=${ss_parts[1]}
+
+# Extract host and port from SS URI
+ss_uri=${ss_uri#*\/\/}
+ss_uri=${ss_uri%/*}
+# parse host and port from the SS uri
+host_port=$(echo "$ss_uri" | cut -d'@' -f2)
+host_port=(${host_port//:/ })
+# Check if server already exists in the file
+echo "$ss_uri"
+if grep -Exq "^$ss_uri .*" "$SERVERS_PATH"
+then
+    echo "Server already exists in the file so i don't add it there"
+else
+    # Add server to the file
+    country=$(curl -sS "https://ipinfo.io/$ip/country?token=009eb1025d4654")
+    mkdir -p ~/.config/sssclient/
+    echo "$ss_uri" >> $SERVERS_PATH
+    echo "Server added to the file"
+fi
+
+echo "Encoding method: '$encryption' Password: '$password'"
+# Create proxy using sslocal command
+sslocal_command="sslocal -m $encryption -k $password -s ${host_port[0]}:${host_port[1]} --local-addr 127.0.0.1:1080 --protocol http"
+$sslocal_command
+
