@@ -1,0 +1,3 @@
+#!/bin/sh
+echo "Saving screenshot with name $1.png"
+xclip -selection clipboard -t /image/png -o > $1.png 
