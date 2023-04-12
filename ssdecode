@@ -1,9 +1,38 @@
 #!/bin/bash
 
 SERVERS_PATH="$HOME/.config/sssclient/servers"
+CONFIG_PATH="$HOME/.config/sssclient/config.json"
+CONFIG_DIR="$HOME/.config/sssclient/"
+
+if [ ! -d "$HOME/.config" ]; then
+	mkdir "$HOME/.config"
+fi
+
+if [ ! -d "$CONFIG_DIR" ]; then
+	mkdir "$CONFIG_DIR"
+fi
+
+# Create config file if it doesnt exist
+if [ ! -f "$CONFIG_PATH" ]; then
+  echo "Config file not found: $CONFIG_PATH"
+  echo "Creating config file."
+  echo "{\"ipinfo_token\":\"STUB\"}" > "$CONFIG_PATH"
+fi
+
+# Used to determine country 
+ipinfo_token=$(jq -r '.ipinfo_token' "$CONFIG_PATH")
+
+if [ "$ipinfo_token" = "STUB" ]; then
+	echo "Token is not entered to the config file. Fill it in in order to determine server's country"
+fi
 
 # Get the list of servers
 servers=()
+
+if [ ! -f "$SERVERS_PATH" ]; then
+	echo "Servers file not found. Creating one"
+	touch "$SERVERS_PATH"
+fi
 
 # read the file line by line using a while loop and a file descriptor
 while IFS= read -r server <&3; do
@@ -47,10 +76,19 @@ if grep -Exq "^$ss_uri .*" "$SERVERS_PATH"
 then
     echo "Server already exists in the file so i don't add it there"
 else
-    # Add server to the file
-    country=$(curl -sS "https://ipinfo.io/$ip/country?token=009eb1025d4654")
-    mkdir -p ~/.config/sssclient/
-    echo "$ss_uri" >> $SERVERS_PATH
+    if [ "$ipinfo_token" = "STUB" ]; then
+	    echo "IPINFO token is still not filled in. I will not recognize the country of VPN server automatically"
+	    country="N/A"
+    else
+        # Add server to the file
+        country=$(curl -sS "https://ipinfo.io/${host_port[0]}/country?token=$ipinfo_token")
+	if [[ "$country" == *"error"* ]]; then
+		echo "Failed to determine country. Check your token."
+		country="N/A"
+	fi
+    fi
+    echo "Determined country: $country"
+    echo "$ss_uri [$country]" >> $SERVERS_PATH
     echo "Server added to the file"
 fi
 
