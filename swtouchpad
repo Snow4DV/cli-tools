@@ -4,7 +4,7 @@
 TOUCHPAD_ID=14
 
 # Check if the touchpad is currently enabled or disabled
-if xinput list-props $TOUCHPAD_ID | grep -E "Device Enabled \\([0-9]+\\)" | grep -q "1$"; then
+if [ "$1" = "off" ] || ( xinput list-props $TOUCHPAD_ID | grep -E "Device Enabled \\([0-9]+\\)" | grep -q "1$" && [ "$1" != "on" ] ); then
     # Touchpad is currently enabled, so we'll disable it
     xinput --disable $TOUCHPAD_ID
     echo "Touchpad disabled."
