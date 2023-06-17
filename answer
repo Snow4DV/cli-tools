@@ -1,0 +1,48 @@
+#!/bin/bash
+
+# That's a cheatsheet tool
+
+file_path="/home/m1ke/temp/exam.md"
+
+# Combine all arguments into a single search string
+search_string="$*"
+
+# Initialize variables
+question_title=""
+question_body=""
+result=""
+
+# Read the file line by line
+while IFS= read -r line; do
+    # Check if the line matches the regex for a question title
+    if [[ $line =~ ^###\ (.*)$ ]]; then
+        # If a matching question has been found before, append it to the result
+	if [[ -n $question_title && $question_title == *"$search_string"* ]]; then
+    		result+="$question_title"$'\n'
+    		result+="$question_body"$'\n'
+	fi
+
+
+        # Reset the question variables
+        question_title="${BASH_REMATCH[1]}"
+        question_body=""
+    else
+        # Append the line to the question body if a question is being processed
+        if [[ -n $question_title ]]; then
+            question_body+="$line"$'\n'
+        fi
+    fi
+done < "$file_path"
+
+# Append the last question to the result if it matches the search string
+if [[ -n $question_title && $question_title == *"$search_string"* ]]; then
+    result+="$question_title"$'\n'
+    result+="$question_body"$'\n'
+fi
+
+# Output the result
+if [[ -n $result ]]; then
+    echo "$result"
+    echo "$result" | xsel -i -b
+fi
+
