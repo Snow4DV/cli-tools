@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import os
+import sys
 import pyperclip
 import openai
 
@@ -13,20 +14,12 @@ if not API_KEY:
 # Set up the OpenAI API client
 openai.api_key = API_KEY
 
-# Get the text from the clipboard
-question = pyperclip.paste()
-
-# Send the question to ChatGPT for generating an answer
-response = openai.Completion.create(
-    engine="text-davinci-003",
-    prompt=question,
-    max_tokens=100,
-    temperature=0.7
+completion = openai.ChatCompletion.create(
+  model="gpt-3.5-turbo",
+  messages=[
+    {"role": "user", "content": pyperclip.paste()}
+  ]
 )
 
-# Get the generated answer from the response
-answer = response.choices[0].text.strip()
-
-# Copy the answer to the clipboard
-pyperclip.copy(answer)
+pyperclip.copy(completion.choices[0].message.content)
 
