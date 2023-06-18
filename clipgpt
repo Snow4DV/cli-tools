@@ -1,0 +1,32 @@
+#!/usr/bin/python3
+import os
+import pyperclip
+import openai
+
+# Get the OpenAI API key from the environment variable
+API_KEY = os.environ.get("OPENAI_KEY")
+
+# Check if the API key is set
+if not API_KEY:
+    raise ValueError("OpenAI API key is not set. Please export the OPENAI_KEY variable.")
+
+# Set up the OpenAI API client
+openai.api_key = API_KEY
+
+# Get the text from the clipboard
+question = pyperclip.paste()
+
+# Send the question to ChatGPT for generating an answer
+response = openai.Completion.create(
+    engine="text-davinci-003",
+    prompt=question,
+    max_tokens=100,
+    temperature=0.7
+)
+
+# Get the generated answer from the response
+answer = response.choices[0].text.strip()
+
+# Copy the answer to the clipboard
+pyperclip.copy(answer)
+
