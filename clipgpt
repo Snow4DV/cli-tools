@@ -14,6 +14,8 @@ if not API_KEY:
 # Set up the OpenAI API client
 openai.api_key = API_KEY
 
+os.system("dunstify loading ans")
+
 completion = openai.ChatCompletion.create(
   model="gpt-3.5-turbo",
   messages=[
@@ -22,4 +24,7 @@ completion = openai.ChatCompletion.create(
 )
 
 pyperclip.copy(completion.choices[0].message.content)
+
+
+os.system("dunstify done!")
 
