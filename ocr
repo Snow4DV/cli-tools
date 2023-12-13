@@ -1,0 +1,61 @@
+#!/bin/bash
+
+
+ # Set the default language for tesseract
+ language="rus"
+
+ # Check the provided arguments for language and output options
+ while [[ $# -gt 0 ]]; do
+     key="$1"
+
+     case $key in
+         rus)
+             language="rus"
+             shift
+             ;;
+         eng)
+             language="eng"
+             shift
+             ;;
+         dunst)
+             dunstify=true
+             shift
+             ;;
+         toclip)
+             to_clip=true
+             shift
+             ;;
+         tofile)
+             to_file=true
+             shift
+             ;;
+         *)
+             echo "Unknown argument: $key"
+             exit 1
+             ;;
+     esac
+ done
+
+
+
+# echo "$language $dunstify $to_file $to_clip"
+
+ocr_result=$(xclip -selection clipboard -t /image/png -o | tesseract -l $language - stdout 2>/dev/null)
+echo "$ocr_result"
+
+
+if [[ $to_file ]]; then
+     echo "$ocr_result" > ~/output.txt
+     echo "file saved"
+ fi
+
+ if [[ $to_clip ]]; then
+     echo "$ocr_result" | xsel -b -i
+     echo "sent to clip"
+ fi
+
+ if [[ $dunstify ]]; then
+	 echo "dunstified"
+     notify-send "$ocr_result"
+ fi
+

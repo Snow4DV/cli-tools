@@ -1,0 +1,67 @@
+#!/bin/bash
+
+# Function to simulate starting the Gradle daemon
+simulate_gradle_daemon_start() {
+  echo "Starting Gradle Daemon..."
+  sleep 3  # Simulate daemon startup time
+  echo "Gradle Daemon started."
+  echo -e "\n\n"
+}
+
+# Function to simulate stopping the Gradle daemon
+simulate_gradle_daemon_stop() {
+  echo -e "\nStopping Gradle Daemon..."
+  sleep 2  # Simulate daemon stopping time
+  echo "Gradle Daemon stopped."
+}
+
+# List of Gradle-like tasks to simulate
+tasks=("compileJava" "compileKotlin" "assemble" "test" "build")
+
+# Simulate starting the Gradle daemon
+simulate_gradle_daemon_start
+
+while true; do
+  # Number of tasks to run concurrently
+  num_tasks=$((RANDOM % 3 + 1))  # Simulate 1 to 3 tasks at a time
+
+  # Randomly select tasks to run concurrently
+  selected_tasks=()
+  for ((i = 0; i < num_tasks; i++)); do
+    task="${tasks[$RANDOM % ${#tasks[@]}]}"
+    selected_tasks+=("$task")
+  done
+
+  # Start and run tasks concurrently in the background
+  for task in "${selected_tasks[@]}"; do
+    (
+      # Simulate the start of a Gradle task
+      echo -e "Task :$task\n"
+
+      # Simulate the build progress (from 0% to 99%)
+      for percent in {0..99}; do
+        echo -e ">$task > Task :$task UP-TO-DATE\n"
+        echo -e ">$task > Task :$task $percent%\n"
+        sleep 0.03  # Simulate progress for 0.03 seconds per percent (total of 3 seconds)
+      done
+
+      # Simulate the task as "BUILD SUCCESSFUL" but not 100% complete
+      echo -e ">$task > Task :$task UP-TO-DATE\n"
+      echo -e ">$task > Task :$task 100%\n"
+      echo -e "BUILD SUCCESSFUL\n"
+
+      # Simulate a note after each task
+      echo -e "\n\nNOTE: Gradle build process is still running for $task...\n\n"
+    ) &
+  done
+
+  # Wait for all background tasks to finish before continuing
+  wait
+
+  # Sleep briefly before the next set of tasks
+  sleep $((RANDOM % 5 + 2))  # Sleep for 2 to 6 seconds
+done
+
+# Simulate stopping the Gradle daemon (This part will never be reached in an infinite loop)
+simulate_gradle_daemon_stop
+

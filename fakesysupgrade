@@ -1,0 +1,150 @@
+#!/bin/bash
+
+# Function to display progress bar with changing percentages
+progress_bar() {
+    local max=$1
+    local step=$((100 / max))
+    local i=0
+    while [ $i -le $max ]; do
+        printf "\r[$i%%][%-${max}s]" "$(($i * step))"
+        sleep 0.1  # Adjust the sleep duration for animation speed
+        i=$((i + 1))
+    done
+    echo ""
+}
+
+# Simulate starting the system upgrade
+echo -e "m1ke@archlinux ~/practices/ipp/prac34/prac4 $ sudo pacman -Syu"
+echo "[sudo] password for m1ke:"
+echo ":: Synchronizing package databases..."
+sleep 2
+echo " core                               127.6 KiB   362 KiB/s 00:00 [##################################] 100%"
+sleep 1
+echo " extra                                8.2 MiB  12.9 MiB/s 00:01 [##################################] 100%"
+sleep 1
+echo " community-testing is up to date"
+echo " community is up to date"
+sleep 1
+echo " multilib                           141.5 KiB  2.76 MiB/s 00:00 [##################################] 100%"
+sleep 1
+echo ":: Starting full system upgrade..."
+sleep 2
+echo "resolving dependencies..."
+sleep 2
+echo "looking for conflicting packages..."
+
+# Define the list of packages to be upgraded
+packages=(
+    "iana-etc" "systemd-libs" "dbus" "hwdata" "libnl" "libnghttp2" "ca-certificates-mozilla"
+    "curl" "shadow" "systemd" "libarchive" "linux" "acpi_call" "alsa-card-profiles"
+    "alsa-ucm-conf" "alsa-lib" "alsa-utils" "android-tools" "glib2" "at-spi2-core"
+    "avahi" "blosc" "boost-libs" "boost" "btrfs-progs" "cmake" "containerd"
+    "harfbuzz" "jbigkit" "libtiff" "librsvg" "libcloudproviders" "vulkan-icd-loader"
+    "libedit" "mesa" "sqlite" "nss" "dbeaver" "extra-cmake-modules" "hidapi" "sdl2"
+    "libopenmpt" "libva" "libwebp" "openjpeg2" "srt" "imath" "ffmpeg" "faudio" "firefox"
+    "geoclue" "ghostscript" "glibmm-2.68" "glm" "gnupg" "go" "libgirepository"
+    "gobject-introspection-runtime" "netpbm" "graphviz" "groff" "vim-runtime" "procps-ng"
+    "gvim" "gzip" "harfbuzz-icu" "haskell-basement" "haskell-memory" "haskell-asn1-types"
+    "haskell-asn1-encoding" "haskell-asn1-parse" "haskell-blaze-builder" "haskell-blaze-markup"
+    "haskell-blaze-html" "haskell-bsb-http-chunked" "haskell-unicode-collation" "haskell-network"
+    "haskell-streaming-commons" "haskell-conduit-extra" "haskell-xml-conduit" "haskell-citeproc"
+    "haskell-emojis" "haskell-commonmark-extensions" "haskell-commonmark-pandoc"
+    "haskell-crypton" "haskell-pem"
+    # Add more packages here...
+)
+
+total_packages=${#packages[@]}
+
+# Display info about packages to be upgraded
+echo -e "\nPackages ($total_packages)"
+for ((i = 0; i < total_packages; i++)); do
+    package=${packages[$i]}
+    echo -e "    $package"
+done
+
+# Simulate asking for user confirmation
+sleep 1
+echo -e "\nTotal Download Size:    947.95 MiB"
+echo -e "Total Installed Size:  3900.72 MiB"
+echo -e "Net Upgrade Size:        25.87 MiB\n"
+echo -n ":: Proceed with installation? [Y/n] "
+sleep 2
+echo "Y"
+
+# Simulate retrieving packages
+echo -e "\n:: Retrieving packages..."
+
+# Define the list of packages with progress
+packages_with_progress=(
+    "iana-etc" "systemd-libs" "dbus" "hwdata" "libnl" "libnghttp2" "ca-certificates-mozilla"
+    "curl" "shadow" "systemd" "libarchive" "linux" "acpi_call" "alsa-card-profiles"
+    "alsa-ucm-conf" "alsa-lib" "alsa-utils" "android-tools" "glib2" "at-spi2-core"
+    "avahi" "blosc" "boost-libs" "boost" "btrfs-progs" "cmake" "containerd"
+    "harfbuzz" "jbigkit" "libtiff" "librsvg" "libcloudproviders" "vulkan-icd-loader"
+    "libedit" "mesa" "sqlite" "nss" "dbeaver" "extra-cmake-modules" "hidapi" "sdl2"
+    "libopenmpt" "libva" "libwebp" "openjpeg2" "srt" "imath" "ffmpeg" "faudio" "firefox"
+    "geoclue" "ghostscript" "glibmm-2.68" "glm" "gnupg" "go" "libgirepository"
+    "gobject-introspection-runtime" "netpbm" "graphviz" "groff" "vim-runtime" "procps-ng"
+    "gvim" "gzip" "harfbuzz-icu" "haskell-basement" "haskell-memory" "haskell-asn1-types"
+    "haskell-asn1-encoding" "haskell-asn1-parse" "haskell-blaze-builder" "haskell-blaze-markup"
+    "haskell-blaze-html" "haskell-bsb-http-chunked" "haskell-unicode-collation" "haskell-network"
+    "haskell-streaming-commons" "haskell-conduit-extra" "haskell-xml-conduit" "haskell-citeproc"
+    "haskell-emojis" "haskell-commonmark-extensions" "haskell-commonmark-pandoc"
+    "haskell-crypton" "haskell-pem"
+    # Add more packages here...
+)
+
+total_packages_with_progress=${#packages_with_progress[@]}
+
+for ((i = 0; i < total_packages_with_progress; i++)); do
+    package=${packages_with_progress[$i]}
+    progress=$((i + 1))
+    
+    # Simulate downloading progress with the progress_bar function
+    echo -n "($progress/$total_packages_with_progress) downloading $package "
+    progress_bar 100  # 100 steps for a full progress bar
+done
+
+# Simulate the pre-transactional hooks
+echo "Running pre-transactional hooks..."
+sleep 2
+
+echo -e "\n:: Processing package changes..."
+sleep 2
+
+# Define the list of packages with progress
+packages_with_progress=(
+    "iana-etc" "systemd-libs" "dbus" "hwdata" "libnl" "libnghttp2" "ca-certificates-mozilla"
+    "curl" "shadow" "systemd" "libarchive" "linux" "acpi_call" "alsa-card-profiles"
+    "alsa-ucm-conf" "alsa-lib" "alsa-utils" "android-tools" "glib2" "at-spi2-core"
+    "avahi" "blosc" "boost-libs" "boost" "btrfs-progs" "cmake" "containerd"
+    "harfbuzz" "jbigkit" "libtiff" "librsvg" "libcloudproviders" "vulkan-icd-loader"
+    "libedit" "mesa" "sqlite" "nss" "dbeaver" "extra-cmake-modules" "hidapi" "sdl2"
+    "libopenmpt" "libva" "libwebp" "openjpeg2" "srt" "imath" "ffmpeg" "faudio" "firefox"
+    "geoclue" "ghostscript" "glibmm-2.68" "glm" "gnupg" "go" "libgirepository"
+    "gobject-introspection-runtime" "netpbm" "graphviz" "groff" "vim-runtime" "procps-ng"
+    "gvim" "gzip" "harfbuzz-icu" "haskell-basement" "haskell-memory" "haskell-asn1-types"
+    "haskell-asn1-encoding" "haskell-asn1-parse" "haskell-blaze-builder" "haskell-blaze-markup"
+    "haskell-blaze-html" "haskell-bsb-http-chunked" "haskell-unicode-collation" "haskell-network"
+    "haskell-streaming-commons" "haskell-conduit-extra" "haskell-xml-conduit" "haskell-citeproc"
+    "haskell-emojis" "haskell-commonmark-extensions" "haskell-commonmark-pandoc"
+    "haskell-crypton" "haskell-pem"
+    # Add more packages here...
+)
+
+total_packages_with_progress=${#packages_with_progress[@]}
+
+for ((i = 0; i < total_packages_with_progress; i++)); do
+    package=${packages_with_progress[$i]}
+    progress=$((i + 1))
+    
+    # Simulate upgrading progress with the progress_bar function
+    echo -n "($progress/$total_packages_with_progress) upgrading $package "
+    progress_bar 100  # 100 steps for a full progress bar
+done
+
+# Simulate the completion of the upgrade process
+echo -e "\n:: Total Upgrade Size: 947.95 MiB"
+echo -e ":: Full system upgrade completed.\n"
+
+
