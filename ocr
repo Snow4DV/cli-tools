@@ -1,9 +1,15 @@
 #!/bin/bash
 
 
- # Set the default language for tesseract
- language="rus"
+ language="rus+eng"
+ to_clip=true
+ to_file=false
+ dunstify=false
+ ask_gpt=false
+ 
 
+ prompt_notice=
+ 
  # Check the provided arguments for language and output options
  while [[ $# -gt 0 ]]; do
      key="$1"
@@ -17,6 +23,14 @@
              language="eng"
              shift
              ;;
+         ruseng)
+             language="rus+eng"
+	     shift
+	     ;;
+	 engrus)
+             language="eng+rus"
+	     shift
+	     ;;
          dunst)
              dunstify=true
              shift
@@ -29,6 +43,18 @@
              to_file=true
              shift
              ;;
+	askgpt)
+	     ask_gpt=true
+	     shift
+	     ;;
+        vars)
+	     prompt_notice="$prompt_notice Учти, что вопрос с вариантами ответов, тебе надо из них выбрать "
+	     shift
+	     ;;
+	short)
+		prompt_notice="$prompt_notice Твой ответ должен быть коротким. "
+		shift
+		;;
          *)
              echo "Unknown argument: $key"
              exit 1
@@ -37,24 +63,31 @@
  done
 
 
+contextprompt="Я дам тебе вопрос, который я отсканировал с помощью OCR, из-за чего могут быть ошибки (пропущенные буквы, цифры и так далее, может быть лишний текст). $prompt_notice Твоя задача: ответить на вопрос. В твоем ответе должен быть только ответ на вопрос. Вот отсканированный текст:"
+
 
 # echo "$language $dunstify $to_file $to_clip"
 
 ocr_result=$(xclip -selection clipboard -t /image/png -o | tesseract -l $language - stdout 2>/dev/null)
+echo "------------OCR RESULT:-----------"
 echo "$ocr_result"
 
 
-if [[ $to_file ]]; then
+if [[ "$ask_gpt" == true ]]; then
+	ocr_result=$(echo "$contextprompt $ocr_result" | chatgpt-cli -n 2>/dev/null)
+fi
+
+if [[ "$to_file" == true ]]; then
      echo "$ocr_result" > ~/output.txt
      echo "file saved"
  fi
 
- if [[ $to_clip ]]; then
+ if [[ "$to_clip" == true ]]; then
      echo "$ocr_result" | xsel -b -i
      echo "sent to clip"
  fi
 
- if [[ $dunstify ]]; then
+ if [[ "$dunstify" == true ]]; then
 	 echo "dunstified"
      notify-send "$ocr_result"
  fi
