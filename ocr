@@ -6,6 +6,7 @@
  to_file=false
  dunstify=false
  ask_gpt=false
+ fix_gpt=false
  
 
  prompt_notice=
@@ -55,6 +56,10 @@
 		prompt_notice="$prompt_notice Твой ответ должен быть коротким. "
 		shift
 		;;
+	fixgpt)
+		fix_gpt=true
+		shift
+		;;
          *)
              echo "Unknown argument: $key"
              exit 1
@@ -65,12 +70,19 @@
 
 contextprompt="Я дам тебе вопрос, который я отсканировал с помощью OCR, из-за чего могут быть ошибки (пропущенные буквы, цифры и так далее, может быть лишний текст). $prompt_notice Твоя задача: ответить на вопрос. В твоем ответе должен быть только ответ на вопрос. Вот отсканированный текст:"
 
+fixprompt="You will be given badly OCRed text in $language language(s). Please normalize it (remove bad symbols, fix badly scanned words and etc). Also remove unnecessary next lines (but keep paragraphs correct). Here is text:"
+
 
 # echo "$language $dunstify $to_file $to_clip"
 
 ocr_result=$(xclip -selection clipboard -t /image/png -o | tesseract -l $language - stdout 2>/dev/null)
 echo "------------OCR RESULT:-----------"
 echo "$ocr_result"
+
+
+if [[ "$fix_gpt" == true ]]; then
+	ocr_result=$(echo "$fixprompt $ocr_result" | chatgpt-cli -n 2>/dev/null)
+fi
 
 
 if [[ "$ask_gpt" == true ]]; then
