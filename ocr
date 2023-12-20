@@ -8,7 +8,7 @@
  ask_gpt=false
  fix_gpt=false
  silent=false
- 
+ from_clip=false 
 
  prompt_notice=
  
@@ -49,6 +49,10 @@
 	     ask_gpt=true
 	     shift
 	     ;;
+     fromclip)
+	     from_clip=true
+	     shift
+	     ;;
         vars)
 	     prompt_notice="$prompt_notice Учти, что вопрос с вариантами ответов, тебе надо из них выбрать "
 	     shift
@@ -80,7 +84,20 @@ fixprompt="You will be given badly OCRed text in $language language(s). Please n
 
 # echo "$language $dunstify $to_file $to_clip"
 
-ocr_result=$(xclip -selection clipboard -t /image/png -o | tesseract -l $language - stdout 2>/dev/null)
+if xclip -o -selection clipboard -t TARGETS | grep -q "text/"; then
+	echo "text is in clip"
+else
+	echo "screenshot is in clip"
+fi
+if xclip -o -selection clipboard -t TARGETS | grep -q "text/" && [ "$from_clip" = true ]; then
+	echo "using clip"
+	ocr_result=$(xclip -selection clipboard -o)
+      else
+	ocr_result=$(xclip -selection clipboard -t /image/png -o | tesseract -l $language - stdout 2>/dev/null)
+ fi
+
+
+
 echo "------------OCR RESULT:-----------"
 echo "$ocr_result"
 
