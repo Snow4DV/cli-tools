@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define the touchpad ID
-TOUCHPAD_ID=14
+TOUCHPAD_ID=12
 
 # Check if the touchpad is currently enabled or disabled
 if [ "$1" = "off" ] || ( xinput list-props $TOUCHPAD_ID | grep -E "Device Enabled \\([0-9]+\\)" | grep -q "1$" && [ "$1" != "on" ] ); then
